@@ -42,7 +42,7 @@ export function theoreticalMinimum(n: number): number {
 
 export function jacobsthalNumbers(limit: number): number[] {
   const j = [0, 1];
-  while (j[j.length - 1] < limit) j.push(j[j.length - 1] + 2 * j[j.length - 2]);
+  while (j[j.length - 1]! < limit) j.push(j[j.length - 1]! + 2 * j[j.length - 2]!);
   return j;
 }
 
@@ -79,10 +79,10 @@ export function fordJohnson(values: number[]): SortResult {
 
     // 1. pair up
     const pairs: { big: Chip; small: Chip }[] = [];
-    const odd = list.length % 2 === 1 ? list[list.length - 1] : null;
+    const odd: Chip | null = list.length % 2 === 1 ? list[list.length - 1]! : null;
     for (let i = 0; i + 1 < list.length; i += 2) {
-      const a = list[i];
-      const b = list[i + 1];
+      const a = list[i]!;
+      const b = list[i + 1]!;
       push({
         phase: "pair",
         depth,
@@ -134,7 +134,7 @@ export function fordJohnson(values: number[]): SortResult {
     const partnerOf = new Map<number, Chip>();
     for (const p of pairs) partnerOf.set(p.big.id, p.small);
 
-    const mainChain: Chip[] = [partnerOf.get(sortedBigs[0].id)!, ...sortedBigs];
+    const mainChain: Chip[] = [partnerOf.get(sortedBigs[0]!.id)!, ...sortedBigs];
     const pending: Chip[] = sortedBigs.slice(1).map((b) => partnerOf.get(b.id)!);
     if (odd) pending.push(odd);
 
@@ -143,12 +143,12 @@ export function fordJohnson(values: number[]): SortResult {
       depth,
       title: "Seed the main chain",
       what: `Main chain: ${fmt(mainChain)}. Pending: ${fmt(pending)}.`,
-      why: `The partner of the smallest winner (${mainChain[0].value}) is guaranteed to be the smallest element overall, so it can be placed at the front for free — zero comparisons.`,
+      why: `The partner of the smallest winner (${mainChain[0]!.value}) is guaranteed to be the smallest element overall, so it can be placed at the front for free — zero comparisons.`,
       pairs: pairs.slice(),
       odd,
       mainChain: mainChain.slice(),
       pending: pending.slice(),
-      active: [mainChain[0].id],
+      active: [mainChain[0]!.id],
     });
 
     if (pending.length === 0) {
@@ -159,8 +159,8 @@ export function fordJohnson(values: number[]): SortResult {
     const jac = jacobsthalNumbers(pending.length + 2);
     const order: number[] = [];
     for (let k = 2; k < jac.length; k++) {
-      const start = Math.min(jac[k], pending.length);
-      const prev = Math.min(jac[k - 1], pending.length);
+      const start = Math.min(jac[k]!, pending.length);
+      const prev = Math.min(jac[k - 1]!, pending.length);
       for (let i = start; i > prev; i--) order.push(i - 1);
     }
     for (let i = 0; i < pending.length; i++) if (!order.includes(i)) order.push(i);
@@ -170,22 +170,22 @@ export function fordJohnson(values: number[]): SortResult {
       depth,
       title: "Compute the Jacobsthal insertion order",
       what: `Jacobsthal numbers: ${jac.join(", ")}. Insertion order of the pending elements: ${fmt(
-        order.map((i) => pending[i]),
+        order.map((i) => pending[i]!),
       )}.`,
       why: "Inserting in Jacobsthal order keeps every binary insertion inside a search window whose size is exactly a power of two minus one, so no insertion ever wastes a comparison. This is the step most people get wrong — the order is not left-to-right.",
       pairs: pairs.slice(),
       odd,
       mainChain: mainChain.slice(),
       pending: pending.slice(),
-      insertOrder: order.map((i) => pending[i]),
+      insertOrder: order.map((i) => pending[i]!),
       jacobsthal: jac,
     });
 
     // 5. binary insertions
     const remaining = new Set(pending.map((p) => p.id));
     for (const idx of order) {
-      const el = pending[idx];
-      const bound = idx + 1 < sortedBigs.length ? sortedBigs[idx + 1] : null;
+      const el = pending[idx]!;
+      const bound: Chip | null = idx + 1 < sortedBigs.length ? sortedBigs[idx + 1]! : null;
       let hi = bound ? mainChain.findIndex((c) => c.id === bound.id) : mainChain.length;
       let lo = 0;
 
@@ -203,14 +203,14 @@ export function fordJohnson(values: number[]): SortResult {
         odd,
         mainChain: mainChain.slice(),
         pending: pending.filter((p) => remaining.has(p.id)),
-        insertOrder: order.map((i) => pending[i]).filter((p) => remaining.has(p.id)),
+        insertOrder: order.map((i) => pending[i]!).filter((p) => remaining.has(p.id)),
         active: [el.id],
         inserted: mainChain.slice(0, hi).map((c) => c.id),
       });
 
       while (lo < hi) {
         const mid = (lo + hi) >> 1;
-        const probe = mainChain[mid];
+        const probe = mainChain[mid]!;
         push({
           phase: "insert",
           depth,
@@ -221,7 +221,7 @@ export function fordJohnson(values: number[]): SortResult {
           odd,
           mainChain: mainChain.slice(),
           pending: pending.filter((p) => remaining.has(p.id)),
-          insertOrder: order.map((i) => pending[i]).filter((p) => remaining.has(p.id)),
+          insertOrder: order.map((i) => pending[i]!).filter((p) => remaining.has(p.id)),
           active: [el.id],
           compare: [el.id, probe.id],
         });
@@ -242,7 +242,7 @@ export function fordJohnson(values: number[]): SortResult {
         odd,
         mainChain: mainChain.slice(),
         pending: pending.filter((p) => remaining.has(p.id)),
-        insertOrder: order.map((i) => pending[i]).filter((p) => remaining.has(p.id)),
+        insertOrder: order.map((i) => pending[i]!).filter((p) => remaining.has(p.id)),
         active: [el.id],
         inserted: [el.id],
       });

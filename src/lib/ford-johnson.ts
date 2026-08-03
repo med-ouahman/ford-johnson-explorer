@@ -96,7 +96,7 @@ export function fordJohnson(values: number[]): SortResult {
       });
       const swap = less(a, b);
       pairs.push(swap ? { big: b, small: a } : { big: a, small: b });
-      steps[steps.length - 1].comparisons = comparisons;
+      steps[steps.length - 1]!.comparisons = comparisons;
     }
 
     push({
@@ -227,7 +227,7 @@ export function fordJohnson(values: number[]): SortResult {
         });
         if (less(el, probe)) hi = mid;
         else lo = mid + 1;
-        steps[steps.length - 1].comparisons = comparisons;
+        steps[steps.length - 1]!.comparisons = comparisons;
       }
 
       mainChain.splice(lo, 0, el);
